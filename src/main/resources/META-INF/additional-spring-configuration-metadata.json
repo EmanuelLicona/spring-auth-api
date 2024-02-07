@@ -1,0 +1,15 @@
+{"properties": [
+  {
+    "name": "security.jwt.expiration-minutes",
+    "type": "java.lang.Long",
+    "required": true,
+    "description": "Time in minutes after which JWT tokens will expire. Default is 30 minutes.",
+    "defaultValue": "30"
+  },
+  {
+    "name": "security.jwt.secret-key",
+    "type": "java.lang.String",
+    "required": true,
+    "description": "Secret key used to sign JWT tokens. Default is 'secret'. In Base64 format. Must be >= 256 bits."
+  }
+]}

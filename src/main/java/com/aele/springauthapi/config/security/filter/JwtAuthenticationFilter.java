@@ -42,7 +42,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = header.split(" ")[1].trim();
 
         // * Get subject/username from jwt
-        String username = jwtService.extractUsernameWithJwt(jwt);
+        String username = jwtService.extractUsernameWithJwt(jwt); // ! <-- Throws ExpiredJwtException
+
+        if (username == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // * Set user in security context
         UserEntity user = userRepository.findByUsername(username).get();

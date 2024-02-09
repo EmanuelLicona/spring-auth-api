@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.aele.springauthapi.entity.UserEntity;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -52,18 +53,26 @@ public class JwtService {
     }
 
     public String extractUsernameWithJwt(String jwt) {
+
+        Claims claims = extractAllClaims(jwt);
+        if (claims == null) return null;
+
         return extractAllClaims(jwt).getSubject();
     }
 
     private Claims extractAllClaims(String jwt) {
 
-        return Jwts
-                .parser()
-                .verifyWith(generateSecretKey())
-                .build()
-                .parseSignedClaims(jwt)
-                .getPayload();
+        try {
+            return Jwts
+                    .parser()
+                    .verifyWith(generateSecretKey())
+                    .build()
+                    .parseSignedClaims(jwt)
+                    .getPayload();
 
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

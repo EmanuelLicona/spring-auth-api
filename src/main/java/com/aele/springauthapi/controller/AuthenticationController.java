@@ -2,7 +2,7 @@ package com.aele.springauthapi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,35 +26,21 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
 
+    @PreAuthorize("permitAll")
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request) {
-
         AuthenticationResponse jwtDto = authenticationService.login(request); 
-
         return ResponseEntity.ok(jwtDto);
     }
 
+    @PreAuthorize("permitAll")
     @PostMapping("/registera")
     public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
-        // UserEntity user = UserEntity.builder()
-        //         .name(request.getName())
-        //         .username(request.getUsername())
-        //         .password(passwordEncoder.encode(request.getPassword()))
-        //         .role(Role.CUSTOMER)
-        //         .build();
-
-        // userRepository.save(user);
-
-        // return ResponseEntity.ok(RegisterResponse.builder()
-        //         .id(user.getId())
-        //         .username(user.getUsername())
-        //         .role(user.getRole())
-        //         .jwt("este es un json web token")
-        //         .build());
-
+ 
         throw new RuntimeException("No implementado");
     }
 
+    @PreAuthorize("permitAll")
     @GetMapping("/public-access")
     public String publicAccess() {
         return "Este endpoint es publico";

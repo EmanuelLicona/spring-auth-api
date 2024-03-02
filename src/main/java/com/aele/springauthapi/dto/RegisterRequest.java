@@ -8,7 +8,7 @@ public class RegisterRequest {
     @NotBlank
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Name cannot be blank")
     private String name;
     
     @NotBlank

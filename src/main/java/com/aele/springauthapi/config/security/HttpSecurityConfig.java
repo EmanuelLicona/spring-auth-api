@@ -1,6 +1,7 @@
 package com.aele.springauthapi.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,58 +16,70 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.aele.springauthapi.config.security.filter.JwtAuthenticationFilter;
 import com.aele.springauthapi.util.Permission;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 // @EnableWebSecurity // Forma para habilitar por definiendo las request
 @EnableMethodSecurity
 public class HttpSecurityConfig {
 
-        // ! Se injecta el DaoAuthenticationProvider que se define en
-        // ! SecurityBeansInjector
-        @Autowired
-        private AuthenticationProvider authenticationProvider;
+    // ! Se injecta el DaoAuthenticationProvider que se define en
+    // ! SecurityBeansInjector
+    @Autowired
+    private AuthenticationProvider authenticationProvider;
 
-        @Autowired
-        private JwtAuthenticationFilter jwtAuthenticationFilter;
+//        @Autowired
+//        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(
-                        HttpSecurity http) throws Exception {
+    @Autowired
+    @Qualifier("handlerExceptionResolver")
+    private HandlerExceptionResolver exceptionResolver;
 
-                http
-                                .csrf(csrfConfig -> csrfConfig.disable())
-                                .sessionManagement(sessionMangConfig -> sessionMangConfig
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .authenticationProvider(authenticationProvider)
-                                // Por convencion el filtro debe ir antes de la
-                                // UsernamePasswordAuthenticationFilter
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // !
-                                // .authorizeHttpRequests(builderRequestMatchers())
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(exceptionResolver);
+    }
 
-                ;
 
-                return http.build();
-        }
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
-        private static Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> builderRequestMatchers() {
-                return authConfig -> {
+        http
+                .csrf(csrfConfig -> csrfConfig.disable())
+                .sessionManagement(sessionMangConfig -> sessionMangConfig
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                // Por convencion el filtro debe ir antes de la
+                // UsernamePasswordAuthenticationFilter
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // !
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // !
+        // .authorizeHttpRequests(builderRequestMatchers())
 
-                        authConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
-                        authConfig.requestMatchers(HttpMethod.GET, "/auth/public-access").permitAll();
-                        authConfig.requestMatchers("/error").permitAll();
+        ;
 
-                        authConfig.requestMatchers(HttpMethod.GET, "/products")
-                                        .hasAuthority(Permission.READ_ALL_PRODUCTS.name());
+        return http.build();
+    }
 
-                        authConfig.requestMatchers(HttpMethod.POST, "/products")
-                                        .hasAuthority(Permission.SAVE_ONE_PRODUCT.name());
+    private static Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> builderRequestMatchers() {
+        return authConfig -> {
 
-                        // authConfig.anyRequest().authenticated();
-                        // authConfig.anyRequest().denyAll();
-                        authConfig.anyRequest().permitAll();
+            authConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
+            authConfig.requestMatchers(HttpMethod.GET, "/auth/public-access").permitAll();
+            authConfig.requestMatchers("/error").permitAll();
 
-                };
+            authConfig.requestMatchers(HttpMethod.GET, "/products")
+                    .hasAuthority(Permission.READ_ALL_PRODUCTS.name());
 
-        }
+            authConfig.requestMatchers(HttpMethod.POST, "/products")
+                    .hasAuthority(Permission.SAVE_ONE_PRODUCT.name());
+
+            // authConfig.anyRequest().authenticated();
+            // authConfig.anyRequest().denyAll();
+            authConfig.anyRequest().permitAll();
+
+        };
+
+    }
 
 }

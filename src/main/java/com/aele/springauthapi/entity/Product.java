@@ -15,12 +15,12 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "products")
-public class ProductEntity {
+public class Product {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Null // Cuando el cliente envia el objeto este debe ser nulo por que es generado
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Name cannot be blank")
     private String name;
     
     @DecimalMin(value = "0.01")

@@ -25,18 +25,17 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
-
     @PreAuthorize("permitAll")
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid AuthenticationRequest request) {
-        AuthenticationResponse jwtDto = authenticationService.login(request); 
+        AuthenticationResponse jwtDto = authenticationService.login(request);
         return ResponseEntity.ok(jwtDto);
     }
 
     @PreAuthorize("permitAll")
-    @PostMapping("/registera")
-    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
- 
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+
         throw new RuntimeException("No implementado");
     }
 

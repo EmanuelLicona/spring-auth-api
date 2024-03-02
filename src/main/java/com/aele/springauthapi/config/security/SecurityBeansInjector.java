@@ -22,8 +22,11 @@ public class SecurityBeansInjector {
     // @Autowired
     // public AuthenticationConfiguration authenticationConfiguration;
 
+//    @Autowired
+//    private UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    private UserDetailsServiceImpl userDetailsService;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -51,9 +54,11 @@ public class SecurityBeansInjector {
     public UserDetailsService userDetailsService() {
         return username -> {
 
-            return userRepository.findByUsername(username)
-                    // .orElseThrow(() -> new RuntimeException("User not found"));
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//            return userRepository.findByUsername(username)
+//                    // .orElseThrow(() -> new RuntimeException("User not found"));
+//                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            return userDetailsService.loadUserByUsername(username);
 
         };
     }

@@ -4,12 +4,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import com.aele.springauthapi.dto.AuthenticationRequest;
 import com.aele.springauthapi.dto.AuthenticationResponse;
-import com.aele.springauthapi.entity.UserEntity;
+import com.aele.springauthapi.entity.User;
 import com.aele.springauthapi.repository.UserRepository;
 
 @Service
@@ -26,23 +27,29 @@ public class AuthenticationService {
 
     public AuthenticationResponse login(AuthenticationRequest request) {
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword());
+       try {
+           UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                   request.getUsername(),
+                   request.getPassword());
 
-        authenticationManager.authenticate(authToken); // ! Si la autenticacion falla se
-                                                       // lanza una excepcion
-        UserEntity user = userRepository.findByUsername(request.getUsername()).get();
+           authenticationManager.authenticate(authToken); // ! Si la autenticacion falla se
+           // lanza una excepcion
 
-        String jwt = jwtService.generateToken(user, generateExtraClaims(user));
+           User user = userRepository.findByUsername(request.getUsername()).get();
 
-        return AuthenticationResponse
-                .builder()
-                .jwt(jwt)
-                .build();
+           String jwt = jwtService.generateToken(user, generateExtraClaims(user));
+
+           return AuthenticationResponse
+                   .builder()
+                   .jwt(jwt)
+                   .build();
+       }
+       catch (BadCredentialsException e) {
+           throw new BadCredentialsException("Error en las credenciasles");
+       }
     }
 
-    private Map<String, Object> generateExtraClaims(UserEntity user) {
+    private Map<String, Object> generateExtraClaims(User user) {
         return Map.of(
                 "name", user.getName(),
                 "role", user.getRole());

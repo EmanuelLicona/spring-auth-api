@@ -1,6 +1,5 @@
 package com.aele.springauthapi.service;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
@@ -9,10 +8,10 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.aele.springauthapi.entity.UserEntity;
+import com.aele.springauthapi.entity.User;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -26,7 +25,7 @@ public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String SECRET_KEY;
 
-    public String generateToken(UserEntity user, Map<String, Object> extraClaims) {
+    public String generateToken(User user, Map<String, Object> extraClaims) {
 
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date(issuedAt.getTime() + (EXPIRATION_MINUTES * 60 * 1000));
@@ -53,26 +52,16 @@ public class JwtService {
     }
 
     public String extractUsernameWithJwt(String jwt) {
-
-        Claims claims = extractAllClaims(jwt);
-        if (claims == null) return null;
-
         return extractAllClaims(jwt).getSubject();
     }
 
     private Claims extractAllClaims(String jwt) {
-
-        try {
-            return Jwts
-                    .parser()
-                    .verifyWith(generateSecretKey())
-                    .build()
-                    .parseSignedClaims(jwt)
-                    .getPayload();
-
-        } catch (Exception e) {
-            return null;
-        }
+        return Jwts
+                .parser()
+                .verifyWith(generateSecretKey())
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload();
     }
 
 }

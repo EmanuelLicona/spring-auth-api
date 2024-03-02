@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public enum Role {
     // ! ¿Los permisos deberian de venir de la base de datos?
-    CUSTOMER(Arrays.asList(Permission.READ_ALL_PRODUCTS)),
+    CUSTOMER(Arrays.asList(Permission.READ_ALL_PRODUCTS, Permission.SAVE_ONE_PRODUCT)),
     ADMINISTRATOR(Arrays.asList(Permission.READ_ALL_PRODUCTS, Permission.SAVE_ONE_PRODUCT));
 
     @Setter @Getter

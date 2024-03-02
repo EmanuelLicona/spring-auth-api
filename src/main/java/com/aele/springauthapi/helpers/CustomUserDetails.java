@@ -1,47 +1,38 @@
-package com.aele.springauthapi.entity;
+package com.aele.springauthapi.helpers;
+
+import com.aele.springauthapi.entity.User;
+
+import com.aele.springauthapi.util.Role;
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import com.aele.springauthapi.util.Role;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Entity
-@Table(name = "users")
-public class UserEntity implements UserDetails {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class CustomUserDetails extends User implements UserDetails {
     private String username;
-    private String name;
     private String password;
 
-    @Enumerated(EnumType.STRING)
     private Role role;
+
+    Collection<? extends GrantedAuthority> authorities;
+
+    public CustomUserDetails(User user) {
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.role = user.getRole();
+
+        // llamada a la base de datos para llenar los roles ?
+    }
 
     @Override // ! Permisos del usuario
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        // llamada a la base de datos para llenar los roles ?
 
         List<GrantedAuthority> authorities = role.getPermissions()
                 .stream()
@@ -64,7 +55,7 @@ public class UserEntity implements UserDetails {
     }
 
     @Override
-    public boolean isCredentialsNonExpired() { // ! Por ejemplo se vence el password en 30 dias
+    public boolean isCredentialsNonExpired() {
         return true;
     }
 
